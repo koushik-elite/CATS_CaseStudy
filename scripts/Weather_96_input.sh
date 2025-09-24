@@ -1,10 +1,11 @@
 export CUDA_VISIBLE_DEVICES=0
+export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
 
 model_name=CATS
 
 python -u run.py \
   --is_training 1 \
-  --root_path ./dataset/weather/ \
+  --root_path dataset/weather/ \
   --data_path weather.csv \
   --model_id weather_96_96 \
   --model $model_name \
@@ -20,11 +21,12 @@ python -u run.py \
   --d_ff 512 \
   --n_heads 32 \
   --QAM_end 0.2 \
-  --batch_size 64
+  --batch_size 64 \
+  --use_gpu 1
 
 python -u run.py \
   --is_training 1 \
-  --root_path ./dataset/weather/ \
+  --root_path dataset/weather/ \
   --data_path weather.csv \
   --model_id weather_96_192\
   --model $model_name \
@@ -44,7 +46,7 @@ python -u run.py \
 
 python -u run.py \
   --is_training 1 \
-  --root_path ./dataset/weather/ \
+  --root_path dataset/weather/ \
   --data_path weather.csv \
   --model_id weather_96_336 \
   --model $model_name \
@@ -64,7 +66,7 @@ python -u run.py \
 
 python -u run.py \
   --is_training 1 \
-  --root_path ./dataset/weather/ \
+  --root_path dataset/weather/ \
   --data_path weather.csv \
   --model_id weather_96_720 \
   --model $model_name \

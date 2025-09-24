@@ -1,8 +1,18 @@
-# CATS (NeurIPS 2024)
+# Commodity Price Forecasting using CATS
 
-#### This repository is an official PyTorch implementation of CATS: [Are Self-Attentions Effective for Time Series Forecasting?](https://arxiv.org/abs/2405.16877)
+#### This repository applies the Cross-Attention Only Time Series transformer (CATS) to commodity price forecasting, benchmarking against ARIMA and Autoformer models. Based on the original CATS implementation from [Are Self-Attentions Effective for Time Series Forecasting?](https://arxiv.org/abs/2405.16877)
 
-## Key Design of CATS
+## Research Overview
+
+This study explores the effectiveness of modern deep learning approaches (specifically CATS) compared to classical WS-ARIMA and advanced transformers like Autoformer in forecasting commodity prices over long-term horizons. While ARIMA models are widely used in financial forecasting, they have limitations in handling long-term forecasts and capturing non-linear patterns. This research evaluates whether CATS can better capture the complex dynamics of commodity markets.
+
+### Key Contributions:
+- First empirical study of CATS on commodity price forecasting
+- Comprehensive evaluation using complex, industrial-standard financial datasets
+- Rigorous benchmarking against ARIMA (industry standard) and Autoformer
+- Analysis of model performance on data with heavy non-stationarity & structural breaks
+
+## Original CATS Architecture
 
 ![alt text](https://github.com/dongbeank/CATS/blob/main/pic/CATS_architecture.png)
 
