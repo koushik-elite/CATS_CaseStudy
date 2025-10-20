@@ -16,7 +16,7 @@ import warnings
 import matplotlib.pyplot as plt
 import numpy as np
 
-from models import CATS
+from models import CATS_factorized
 
 warnings.filterwarnings('ignore')
 
@@ -25,7 +25,7 @@ class Exp_Main(Exp_Basic):
         super(Exp_Main, self).__init__(args)
 
     def _build_model(self):
-        model = CATS.Model(self.args).float()
+        model = CATS_factorized.Model(self.args).float()
         if self.args.use_multi_gpu and self.args.use_gpu:
             model = nn.DataParallel(model, device_ids=self.args.device_ids)
         return model
