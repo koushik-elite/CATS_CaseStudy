@@ -311,7 +311,8 @@ class Model(nn.Module):
         # NEW: Cross-variable parameters
         use_cross_variable = True
         batch_size = args.batch_size
-        fusion_method = args.fusion_method if hasattr(args, 'fusion_method') else 'learnable'
+        # fusion_method = args.fusion_method if hasattr(args, 'fusion_method') else 'learnable'
+        fusion_method = "learnable"
 
         self.model = Model_backbone(
             c_in=c_in, seq_len=seq_len, pred_len=self.pred_len, patch_len=patch_len, stride=stride, 

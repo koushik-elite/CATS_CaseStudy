@@ -208,8 +208,8 @@ class Dataset_Custom(Dataset):
             self.label_len = size[1]
             self.pred_len = size[2]
         # init
-        assert flag in ['train', 'test', 'val']
-        type_map = {'train': 0, 'val': 1, 'test': 2}
+        assert flag in ['train', 'test', 'val', 'pred']
+        type_map = {'train': 0, 'val': 1, 'test': 2, 'pred':0}
         self.set_type = type_map[flag]
 
         self.features = features
@@ -235,7 +235,9 @@ class Dataset_Custom(Dataset):
         cols.remove(self.target)
         cols.remove('date')
         df_raw = df_raw[['date'] + cols + [self.target]]
-        # print(cols)
+        
+        print(cols)
+
         num_train = int(len(df_raw) * self.ratios[0])
         num_test = int(len(df_raw) * self.ratios[2])
         num_vali = len(df_raw) - num_train - num_test
@@ -244,16 +246,18 @@ class Dataset_Custom(Dataset):
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
 
-        border1 = 0
-        border2 = len(df_raw)
-        print("set_type ", self.set_type)
-        print("border1, border2:", border1, border2)
-
+        # border1 = 0
+        # border2 = len(df_raw)
+        # print("set_type ", self.set_type)
+        # print("border1, border2:", border1, border2)
+        
         if self.features == 'M' or self.features == 'MS':
             cols_data = df_raw.columns[1:]
             df_data = df_raw[cols_data]
         elif self.features == 'S':
             df_data = df_raw[[self.target]]
+
+        print(df_data.head())
 
         if self.scale:
             train_data = df_data[border1s[0]:border2s[0]]
@@ -265,6 +269,9 @@ class Dataset_Custom(Dataset):
             data = df_data.values
 
         df_stamp = df_raw[['date']][border1:border2]
+
+        print("df_stamp:", df_stamp.shape)
+
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
         if self.timeenc == 0:
             df_stamp['month'] = df_stamp.date.apply(lambda row: row.month, 1)

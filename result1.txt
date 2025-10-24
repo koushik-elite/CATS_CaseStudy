@@ -1,0 +1,19 @@
+Args in experiment:
+Namespace(is_training=0, model_id='nift_96', model='CATSB', data='custom', root_path='dataset/nift/', data_path='NIFTY_COMMODITIES_30T_VALID.csv', features='M', target='close', freq='h', checkpoints='./checkpoints/', inverse=False, ratios='0.7,0.1,0.2', seq_len=512, label_len=48, pred_len=96, dec_in=4, d_model=256, n_heads=32, e_layers=0, d_layers=3, d_ff=512, dropout=0.2, embed='timeF', use_norm=1, num_workers=10, itr=1, train_epochs=30, batch_size=16, patience=10, learning_rate=0.001, des='Exp', loss='MSE', lradj='type2', use_amp=False, use_gpu=True, gpu=0, use_multi_gpu=False, devices='0,1,2,3', test_flop=False, QAM_start=0.1, QAM_end=0.2, patch_len=24, stride=24, pct_start=0.3, padding_patch='end', query_independence=False, store_attn=False)
+check
+Use GPU: cuda:0
+>>>>>>>testing : nift_96_CATSB_custom_sl512_pl96_dm256_nh32_dl3_df512_qiFalse_0<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+['open', 'high', 'low']
+set_type  2
+border1, border2: 0 1846
+      open     high      low    close
+0  8114.40  8131.05  8095.35  8112.65
+1  8112.55  8115.75  8065.70  8081.65
+2  8082.10  8093.25  8070.45  8088.30
+3  8088.35  8116.75  8085.65  8114.25
+4  8114.45  8122.70  8107.35  8111.00
+df_stamp: (1846, 1)
+test 1239
+loading model
+reconstructed_true (1328, 4)
+mse:36467.8515625, mae:137.8653564453125, rmse:190.965576171875

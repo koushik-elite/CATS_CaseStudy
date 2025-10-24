@@ -4,6 +4,7 @@ from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params
 from utils.metrics import metric
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 from torch import optim
@@ -14,9 +15,10 @@ import time
 
 import warnings
 import matplotlib.pyplot as plt
-import numpy as np
 
 from models import CATS_factorized
+from models import CATS_base
+import pandas as pda
 
 warnings.filterwarnings('ignore')
 
@@ -201,6 +203,13 @@ class Exp_Main(Exp_Basic):
 
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
+                # print("batch_x shape:", batch_x.shape)
+                # print("batch_y shape:", batch_y.shape)
+                # print("batch_x_mark shape:", batch_x_mark.shape)
+                # print("batch_y_mark shape:", batch_y_mark.shape)
+                # print(batch_x[0])
+                # print("----")
+                # print(batch_y[0])
 
                 # encoder - decoder
                 if self.args.use_amp:
@@ -227,14 +236,36 @@ class Exp_Main(Exp_Basic):
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
                     visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
+                    # print("ground truth", gt)
+                    # print("prediction", pd)
 
         if self.args.test_flop:
             test_params_flop((batch_x.shape[1],batch_x.shape[2]))
             exit()
+        
         preds = np.concatenate(preds, axis=0)
         trues = np.concatenate(trues, axis=0)
         inputx = np.concatenate(inputx, axis=0)
         
+        reconstructed_true = self.get_average_sequence(trues)
+        reconstructed_pred = self.get_average_sequence(preds)
+        # fourth_col = reconstructed_pred[:, 3]
+
+        output_df = pda.DataFrame(reconstructed_true, columns=["open", "high", "low", "close"])
+        output_df["predicted_close"] = reconstructed_pred[:, 3]
+        input_df = pda.read_csv("/home/koushik/CATS_CaseStudy/dataset/nift/NIFTY_COMMODITIES_30T_VALID.csv")
+        # print(reconstructed_true)
+
+        print("reconstructed_true", reconstructed_true.shape)
+
+        date_value  = input_df["date"][int(self.args.seq_len):int(reconstructed_true.shape[0]) + int(self.args.seq_len)].values
+
+        # print("date_value", date_value.shape)
+
+        output_df["date"] = date_value
+
+        output_df.to_csv(folder_path + 'reconstructed_results.csv', index=False)
+
         if self.args.inverse:
             preds=test_data.inverse_transform(preds.reshape(-1, self.args.dec_in)).reshape(-1,self.args.pred_len, self.args.dec_in)
             trues=test_data.inverse_transform(trues.reshape(-1, self.args.dec_in)).reshape(-1,self.args.pred_len, self.args.dec_in)
@@ -247,6 +278,7 @@ class Exp_Main(Exp_Basic):
 
         mae, mse, rmse, mape, mspe, rse, corr = metric(preds, trues)
         print('mse:{}, mae:{}, rmse:{}'.format(mse, mae, rmse))
+        
         f = open("result.txt", 'a')
         f.write(setting + "  \n")
         f.write('mse:{}, mae:{}, rmse:{}'.format(mse, mae, rmse))
@@ -272,6 +304,8 @@ class Exp_Main(Exp_Basic):
         trues = []
         inputx = []
 
+        
+
         self.model.eval()
         with torch.no_grad():
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(pred_loader):
@@ -279,6 +313,11 @@ class Exp_Main(Exp_Basic):
                 batch_y = batch_y.float()
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
+
+                print("batch_x shape:", batch_x.shape)
+                print("batch_y shape:", batch_y.shape)
+                print("batch_x_mark shape:", batch_x_mark.shape)
+                print("batch_y_mark shape:", batch_y_mark.shape)
                 # encoder - decoder
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
@@ -303,6 +342,10 @@ class Exp_Main(Exp_Basic):
         trues=pred_data.inverse_transform(trues.reshape(-1, self.args.dec_in)).reshape(-1,self.args.pred_len, self.args.dec_in)
         inputx=pred_data.inverse_transform(inputx.reshape(-1, self.args.dec_in)).reshape(-1,self.args.pred_len, self.args.dec_in)
 
+        print(preds)
+        print("-----------------------------------------")
+        print(inputx)
+
         # result save
         folder_path = './results/' + setting + '/'
         if not os.path.exists(folder_path):
@@ -323,3 +366,18 @@ class Exp_Main(Exp_Basic):
         np.save(folder_path + 'real_prediction_x.npy', inputx)
 
         return
+
+    def get_average_sequence(self, preds):
+        n = preds.shape[0] + preds.shape[1]
+        # Initialize sum and count arrays
+        sum_array = np.zeros((n, preds.shape[2]))
+        count_array = np.zeros((n, 1))  # only need 1 count per position
+
+        # Combine overlapping sequences
+        for i in range(preds.shape[0]):
+            sum_array[i:i + preds.shape[1]] += preds[i]
+            count_array[i:i + preds.shape[1]] += 1
+
+        # Average over overlaps
+        reconstructed = sum_array / np.maximum(count_array, 1)
+        return reconstructed

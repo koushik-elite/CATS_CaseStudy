@@ -136,6 +136,8 @@ if __name__ == '__main__':
             args.query_independence, ii)
 
         exp = Exp(args)  # set experiments
+        # print(args)
         print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
         exp.test(setting, test=1)
+        # exp.predict(setting)
         torch.cuda.empty_cache()
